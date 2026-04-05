@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CNSL Smart Dashboard</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; background: #222; color: white; }
+        .card { background: #333; padding: 20px; margin: 10px; border-radius: 10px; display: inline-block; width: 200px; }
+        .value { font-size: 2em; color: #00ff00; }
+    </style>
+</head>
+<body>
+    <h1>Cashew Neutralization System</h1>
+    <div class="card"><h3>pH Level</h3><div id="ph" class="value">--</div></div>
+    <div class="card"><h3>Moisture</h3><div id="moisture" class="value">--</div>%</div>
+    <div class="card"><h3>Temp</h3><div id="temp" class="value">--</div>°C</div>
+    <div class="card" style="border: 2px solid #ffaa00;"><h3>AI Dosage</h3><div id="dosage" class="value">--</div>g</div>
+
+    <script>
+        function updateData() {
+            fetch('/data')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('ph').innerText = data.ph;
+                    document.getElementById('moisture').innerText = data.moisture;
+                    document.getElementById('temp').innerText = data.temp;
+                    document.getElementById('dosage').innerText = data.dosage;
+                });
+        }
+        setInterval(updateData, 2000); // Refresh every 2 seconds
+    </script>
+</body>
+</html>
