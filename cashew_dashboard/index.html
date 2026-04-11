@@ -1,1 +1,24 @@
+const socket = io();  // connects to Flask-SocketIO automatically
 
+document.getElementById('runBtn').onclick = () => socket.emit('start_cycle');
+document.getElementById('stopBtn').onclick = () => socket.emit('stop_cycle');
+
+socket.on('sensor_data', (data) => {
+    document.getElementById('sv-temp').textContent   = data.temp;
+    document.getElementById('sv-moist').textContent  = data.moisture;
+    document.getElementById('sv-ph').textContent     = data.ph;
+    document.getElementById('sv-curr').textContent   = data.current;
+    document.getElementById('pid-pwm-v').textContent = data.pwm + '%';
+    document.getElementById('stoich-val').textContent = data.lime_dose + ' g';
+    pushChart(data.temp);    // your existing chart update function
+    setFSM(fsmNameToIndex(data.fsm_state));
+});
+
+socket.on('alert', (data) => {
+    addAlert(data.msg, 'a-' + data.type);  // your existing alert function
+});
+
+function fsmNameToIndex(name) {
+    const map = { IDLE:0, PREHEAT:1, MOISTURE_LOCK:2, EXTRACTING:3, CONDITIONING:4, COMPLETE:5 };
+    return map[name] ?? 0;
+}
