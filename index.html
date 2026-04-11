@@ -1,32 +1,71 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>CNSL Smart Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team 7: CNSL Valorization Dashboard</title>
     <style>
-        body { font-family: sans-serif; text-align: center; background: #222; color: white; }
-        .card { background: #333; padding: 20px; margin: 10px; border-radius: 10px; display: inline-block; width: 200px; }
-        .value { font-size: 2em; color: #00ff00; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; text-align: center; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; font-size: 1.5em; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .tile { padding: 20px; border-radius: 10px; background: #ecf0f1; border-left: 5px solid #3498db; }
+        .value { font-size: 1.8em; font-weight: bold; color: #2980b9; display: block; }
+        .label { font-size: 0.9em; color: #7f8c8d; text-transform: uppercase; }
+        .alert-box { margin-top: 20px; padding: 15px; border-radius: 10px; background: #fff3f3; color: #c0392b; border: 1px solid #e74c3c; font-weight: bold; display: none; }
     </style>
 </head>
 <body>
-    <h1>Cashew Neutralization System</h1>
-    <div class="card"><h3>pH Level</h3><div id="ph" class="value">--</div></div>
-    <div class="card"><h3>Moisture</h3><div id="moisture" class="value">--</div>%</div>
-    <div class="card"><h3>Temp</h3><div id="temp" class="value">--</div>°C</div>
-    <div class="card" style="border: 2px solid #ffaa00;"><h3>AI Dosage</h3><div id="dosage" class="value">--</div>g</div>
+    <div class="container">
+        <h1>Cashew Shell Valorization System</h1>
+        <p>Real-time Monitoring & Process Control</p>
+        
+        <div id="jam-alert" class="alert-box">⚠️ MECHANICAL JAM DETECTED</div>
+
+        <div class="grid">
+            <div class="tile">
+                <span class="label">pH Level</span>
+                <span id="ph-val" class="value">--</span>
+            </div>
+            <div id="temp-tile" class="tile">
+                <span class="label">Nozzle Temp</span>
+                <span id="temp-val" class="value">--</span>
+            </div>
+            <div class="tile">
+                <span class="label">Moisture</span>
+                <span id="moist-val" class="value">--</span>
+            </div>
+            <div class="tile" style="border-left-color: #27ae60;">
+                <span class="label">Lime Dosage</span>
+                <span id="dose-val" class="value">--</span>
+            </div>
+        </div>
+        
+        <p style="margin-top:20px; font-size: 0.8em; color: #95a5a6;">System Status: <span id="sys-status">Initializing...</span></p>
+    </div>
 
     <script>
-        function updateData() {
-            fetch('/data')
-                .then(response => response.json())
+        function fetchData() {
+            fetch('/api/status')
+                .then(res => res.json())
                 .then(data => {
-                    document.getElementById('ph').innerText = data.ph;
-                    document.getElementById('moisture').innerText = data.moisture;
-                    document.getElementById('temp').innerText = data.temp;
-                    document.getElementById('dosage').innerText = data.dosage;
+                    document.getElementById('ph-val').innerText = data.ph;
+                    document.getElementById('moist-val').innerText = data.moisture;
+                    document.getElementById('temp-val').innerText = data.temp;
+                    document.getElementById('dose-val').innerText = data.dosage;
+                    document.getElementById('sys-status').innerText = data.status;
+
+                    // Alert UI Logic
+                    const alertBox = document.getElementById('jam-alert');
+                    alertBox.style.display = (data.alert !== "Normal") ? "block" : "none";
+                    
+                    // Thermal Governance UI Color change
+                    const tempTile = document.getElementById('temp-tile');
+                    tempTile.style.backgroundColor = (data.status.includes("CRITICAL")) ? "#ffdada" : "#ecf0f1";
                 });
         }
-        setInterval(updateData, 2000); // Refresh every 2 seconds
+        setInterval(fetchData, 2000); // Poll every 2 seconds
+        fetchData(); // Initial call
     </script>
 </body>
 </html>
