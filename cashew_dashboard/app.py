@@ -99,3 +99,34 @@ if __name__ == '__main__':
     thread = threading.Thread(target=sensor_loop, daemon=True)
     thread.start()
     socketio.run(app, host='0.0.0.0', port=5000, debug=False)
+
+
+
+import sys
+
+# Mock Pi-only libraries for Windows testing
+if sys.platform == 'win32':
+    from unittest.mock import MagicMock
+    sys.modules['RPi']                    = MagicMock()
+    sys.modules['RPi.GPIO']               = MagicMock()
+    sys.modules['smbus2']                 = MagicMock()
+    sys.modules['board']                  = MagicMock()
+    sys.modules['busio']                  = MagicMock()
+    sys.modules['adafruit_mlx90614']      = MagicMock()
+    sys.modules['spidev']                 = MagicMock()
+    sys.modules['serial']                 = MagicMock()
+
+# Only AFTER the mocks, import everything else
+from flask import Flask, render_template
+from flask_socketio import SocketIO
+import threading, time
+
+from sensors.mlx90614 import get_nozzle_temp
+from sensors.rs485_probe import get_moisture, get_ph
+from sensors.acs712 import get_current_amps
+from actuators.motor_control import set_motor_speed, stop_motor, reverse_motor
+from actuators.stepper import dose_lime
+from actuators.solenoid import mist_pulse
+from control.pid import PIDController
+from control.fsm import ProcessFSM, State
+from control.stoichiometry import calculate_lime_dose
